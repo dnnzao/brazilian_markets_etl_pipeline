@@ -1,12 +1,14 @@
 # Dockerfile.airflow
-# Custom Airflow image with project dependencies installed
+# Custom Airflow image with project dependencies installed.
+#
+# Dependencies are pinned here (not read from requirements.txt) so that
+# changes to project-level dev dependencies (pytest, black, streamlit)
+# do not invalidate this image's pip-install layer cache.
+# Airflow itself is already in the base image.
 
 FROM apache/airflow:2.8.0-python3.11
 
-# Install project dependencies
-COPY requirements.txt /tmp/requirements.txt
-
-# Install packages (excluding airflow itself since it's already installed)
+# Install extraction/loading packages (airflow is already in the base image)
 RUN pip install --no-cache-dir \
     yfinance>=0.2.40 \
     requests>=2.31.0 \

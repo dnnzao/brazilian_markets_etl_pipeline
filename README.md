@@ -129,6 +129,7 @@ brazilian-market-etl/
 ├── LICENSE                      # MIT License
 ├── .env.example                 # Environment template
 ├── .gitignore                   # Git ignore rules
+├── .dockerignore                # Docker build context exclusions
 ├── docker-compose.yml           # Container orchestration
 ├── requirements.txt             # Python dependencies
 │
@@ -154,12 +155,15 @@ brazilian-market-etl/
 │       └── backfill_historical.py
 │
 ├── dashboard/                   # Streamlit application
+│   ├── .streamlit/
+│   │   └── config.toml          # Streamlit server configuration
 │   ├── app.py
 │   ├── pages/
 │   │   ├── 1_Market_Overview.py
 │   │   ├── 2_Sector_Analysis.py
 │   │   ├── 3_Macro_Correlation.py
-│   │   └── 4_Stock_Screener.py
+│   │   ├── 4_Stock_Screener.py
+│   │   └── 5_Historical_Analysis.py
 │   └── components/
 │       ├── charts.py
 │       └── queries.py

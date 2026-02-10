@@ -1,0 +1,55 @@
+# =============================================================================
+# Docker Build Context Exclusions
+# =============================================================================
+# Without this file, `docker compose build` sends the entire project directory
+# (~800 MB, mostly venv/) to the Docker daemon before building. The dashboard
+# image only needs dashboard/ and .streamlit/; the Airflow image only needs
+# extract/, load/, and airflow/dags/. Everything below is excluded to keep
+# the build context under 1 MB.
+# =============================================================================
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Git
+.git/
+.gitignore
+
+# Runtime logs
+airflow/logs/
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+logs/
+
+# Documentation
+docs/
+*.md
+
+# Tests
+tests/
+
+# Python bytecache
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets
+.env
+*.key
+*.pem
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.pdf
+*.zip
+can_be_removed.md

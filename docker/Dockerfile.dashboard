@@ -1,16 +1,25 @@
+# Dockerfile.dashboard
+# Streamlit dashboard image for the Brazilian Market ETL Pipeline.
+#
+# Dependencies are pinned here (not read from requirements.txt) so that
+# changes to project-level dev dependencies (pytest, dbt, black) do not
+# invalidate this image's pip-install layer cache.
+#
+# gcc is intentionally omitted: every package below ships as a pre-built
+# binary wheel. libpq-dev is kept for psycopg2-binary runtime linking,
+# and curl is kept for the HEALTHCHECK probe.
+
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (no gcc — all pip packages use binary wheels)
 RUN apt-get update && apt-get install -y \
-    gcc \
     libpq-dev \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python dependencies
-COPY requirements.txt .
+# Install Python dependencies (pinned independently from requirements.txt)
 RUN pip install --no-cache-dir \
     streamlit==1.29.0 \
     plotly==5.18.0 \
@@ -21,8 +30,9 @@ RUN pip install --no-cache-dir \
     python-dotenv==1.0.0 \
     python-dateutil==2.8.2
 
-# Copy dashboard code
+# Copy dashboard code and Streamlit config
 COPY dashboard/ /app/dashboard/
+COPY dashboard/.streamlit/ /app/.streamlit/
 
 # Set environment variables
 ENV PYTHONPATH=/app

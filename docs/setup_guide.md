@@ -848,10 +848,10 @@ React would require learning JavaScript/TypeScript and maintaining a separate fr
 ### 9.2 Option B: Run in Docker
 
 ```bash
-docker compose --profile dashboard up -d dashboard
+sudo docker compose up -d dashboard
 ```
 
-The `--profile dashboard` flag starts services tagged with the "dashboard" profile. Profiles allow optional services that aren't started by default with `docker compose up`.
+The dashboard service is defined in `docker-compose.yml` without a profile, so it starts together with the other core services during `docker compose up -d`. You can also start it individually with the command above. The image is built from `docker/Dockerfile.dashboard`, which installs only the runtime dependencies the dashboard needs (streamlit, plotly, pandas, sqlalchemy, etc.). A `.dockerignore` file at the project root excludes the virtual environment, logs, tests, and other development artifacts from the build context, keeping builds fast and images small.
 
 Running in Docker is useful when you want consistent behavior across different machines or when deploying to a server.
 

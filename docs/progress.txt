@@ -68,8 +68,13 @@
 - [x] tests/test_db_loader.py - DatabaseLoader tests
 
 ### Utilities
-- [x] Dockerfile.dashboard - Dashboard container
+- [x] Dockerfile.dashboard - Dashboard container (gcc removed, no unused COPY)
+- [x] Dockerfile.airflow - Airflow container (unused COPY requirements.txt removed)
+- [x] .dockerignore - Excludes venv, logs, tests, docs, .git from build context
+- [x] dashboard/.streamlit/config.toml - Streamlit server config (maxMessageSize=500)
 - [x] scripts/setup_db.sh - Database setup script
+- [x] scripts/start_project.sh - Start all Docker services (logs to logs/ dir)
+- [x] scripts/close_project.sh - Stop all Docker services (logs to logs/ dir)
 - [x] scripts/backfill_data.py - Data backfill script
 - [x] scripts/validate_data.py - Data validation script
 

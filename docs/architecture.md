@@ -191,6 +191,10 @@ The database includes indexes on all foreign key columns and frequently filtered
 
 dbt incremental models are used for the fact table to avoid full table rebuilds on daily loads. Only rows with dates greater than the maximum existing date are processed.
 
+## Docker Build Optimization
+
+A `.dockerignore` file at the project root excludes the local virtual environment (`venv/`, ~800 MB), git history, runtime logs, test suites, documentation, and Python bytecache from the Docker build context. This reduces the context transfer from ~800 MB to under 1 MB, making rebuilds near-instantaneous. Each Dockerfile pins only its own runtime dependencies rather than reading from the shared `requirements.txt`, so changes to development-only packages (pytest, black, dbt-core) do not invalidate image layer caches. The dashboard image omits build-time compilers (gcc) since all its Python packages ship as pre-built binary wheels.
+
 ## Security Considerations
 
-Sensitive configuration (database credentials, API keys) is stored in environment variables, never in code. The `.env` file is excluded from version control via `.gitignore`. In a production deployment, these would be managed through a secrets manager like AWS Secrets Manager or HashiCorp Vault.
+Sensitive configuration (database credentials, API keys) is stored in environment variables, never in code. The `.env` file is excluded from version control via `.gitignore` and from Docker images via `.dockerignore`. In a production deployment, these would be managed through a secrets manager like AWS Secrets Manager or HashiCorp Vault.
