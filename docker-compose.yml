@@ -66,6 +66,7 @@ services:
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-dataeng}:${POSTGRES_PASSWORD:-dataeng123}@postgres:5432/${POSTGRES_DB:-brazilian_market}
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__WEBSERVER__EXPOSE_CONFIG: 'true'
+      AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: America/Sao_Paulo
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: ${POSTGRES_USER:-dataeng}
@@ -106,6 +107,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dataeng123}
       POSTGRES_DB: ${POSTGRES_DB:-brazilian_market}
       PYTHONPATH: /opt/airflow
+      DBT_PROFILES_DIR: /opt/airflow/dbt_project
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs

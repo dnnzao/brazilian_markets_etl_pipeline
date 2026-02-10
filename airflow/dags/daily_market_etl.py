@@ -190,19 +190,22 @@ with DAG(
 
     # dbt tasks
     with TaskGroup("transformation") as transformation_group:
+        # --log-path /tmp/dbt_logs avoids PermissionError on the volume-mounted
+        # dbt_project/logs/dbt.log, which is owned by root (created by the
+        # dbt_runner container) while Airflow runs as UID 50000.
         dbt_deps = BashOperator(
             task_id="dbt_deps",
-            bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps",
+            bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps --log-path /tmp/dbt_logs",
         )
 
         dbt_run = BashOperator(
             task_id="dbt_run",
-            bash_command=f"cd {DBT_PROJECT_DIR} && dbt run",
+            bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --log-path /tmp/dbt_logs",
         )
 
         dbt_test = BashOperator(
             task_id="dbt_test",
-            bash_command=f"cd {DBT_PROJECT_DIR} && dbt test",
+            bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --log-path /tmp/dbt_logs",
         )
 
         dbt_deps >> dbt_run >> dbt_test

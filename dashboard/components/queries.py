@@ -17,16 +17,24 @@ from typing import Optional, List, Tuple
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+import streamlit as st
 import pandas as pd
 import numpy as np
 from sqlalchemy import text
 from sqlalchemy.engine import Engine
+
+# Cache TTL in seconds (5 minutes). Queries return market data that changes at
+# most once per day, so a short TTL is sufficient to eliminate redundant
+# database hits during interactive Streamlit use while still refreshing.
+_CACHE_TTL = 300
+_CACHE_HASH = {Engine: id}
 
 
 # =============================================================================
 # Date Range Utilities
 # =============================================================================
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_date_range_info(engine: Engine) -> dict:
     """
     Get the available date range in the database.
@@ -93,6 +101,7 @@ def calculate_period_dates(period: str) -> Tuple[str, str]:
     return start_date.strftime("%Y-%m-%d"), end_date.strftime("%Y-%m-%d")
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_market_summary(engine: Engine) -> dict:
     """
     Get overall market summary statistics.
@@ -142,6 +151,7 @@ def get_market_summary(engine: Engine) -> dict:
     return {}
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_top_movers(
     engine: Engine, n: int = 10, direction: str = "gainers"
 ) -> pd.DataFrame:
@@ -185,6 +195,7 @@ def get_top_movers(
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_sector_performance(
     engine: Engine, days: int = 30
 ) -> pd.DataFrame:
@@ -226,6 +237,7 @@ def get_sector_performance(
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_stock_history(
     engine: Engine,
     ticker: str,
@@ -277,6 +289,7 @@ def get_stock_history(
         )
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_stock_list(engine: Engine) -> pd.DataFrame:
     """
     Get list of all available stocks.
@@ -303,6 +316,7 @@ def get_stock_list(engine: Engine) -> pd.DataFrame:
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_correlation_data(
     engine: Engine, days: int = 252
 ) -> pd.DataFrame:
@@ -342,6 +356,7 @@ def get_correlation_data(
 # Historical Analysis Queries
 # =============================================================================
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_multi_year_returns(engine: Engine) -> pd.DataFrame:
     """
     Calculate 1-year, 3-year, 5-year, and 10-year returns for all stocks.
@@ -453,6 +468,7 @@ def get_multi_year_returns(engine: Engine) -> pd.DataFrame:
     return df
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_cumulative_returns(
     engine: Engine,
     ticker: Optional[str] = None,
@@ -513,6 +529,7 @@ def get_cumulative_returns(
         return pd.read_sql(text(query), conn, params=params)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_drawdown_analysis(
     engine: Engine,
     ticker: str,
@@ -571,6 +588,7 @@ def get_drawdown_analysis(
         )
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_max_drawdowns(engine: Engine) -> pd.DataFrame:
     """
     Get maximum drawdown for each stock over entire history.
@@ -624,6 +642,7 @@ def get_max_drawdowns(engine: Engine) -> pd.DataFrame:
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_rolling_correlations(
     engine: Engine,
     ticker: str,
@@ -695,6 +714,7 @@ def get_rolling_correlations(
     return df
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_selic_regime_performance(engine: Engine) -> pd.DataFrame:
     """
     Analyze stock performance during different SELIC rate regimes.
@@ -745,6 +765,7 @@ def get_selic_regime_performance(engine: Engine) -> pd.DataFrame:
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_yearly_comparison(engine: Engine) -> pd.DataFrame:
     """
     Get year-over-year performance comparison for all stocks.
@@ -792,6 +813,7 @@ def get_yearly_comparison(engine: Engine) -> pd.DataFrame:
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_crisis_periods_performance(engine: Engine) -> pd.DataFrame:
     """
     Analyze stock performance during known crisis periods.
@@ -862,6 +884,7 @@ def get_crisis_periods_performance(engine: Engine) -> pd.DataFrame:
         return pd.read_sql(text(query), conn)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_historical_volatility(
     engine: Engine,
     ticker: Optional[str] = None,
@@ -913,6 +936,7 @@ def get_historical_volatility(
         return pd.read_sql(text(query), conn, params=params)
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_sector_performance_history(
     engine: Engine,
     start_date: Optional[str] = None,
@@ -975,6 +999,7 @@ def get_sector_performance_history(
         )
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_market_trends(
     engine: Engine,
     start_date: Optional[str] = None,
@@ -1022,6 +1047,7 @@ def get_market_trends(
         )
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_best_worst_periods(
     engine: Engine,
     ticker: str,
@@ -1079,6 +1105,7 @@ def get_best_worst_periods(
     return {"best": best, "worst": worst}
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_monthly_returns_heatmap(
     engine: Engine,
     ticker: str,
@@ -1135,6 +1162,7 @@ def get_monthly_returns_heatmap(
     return df
 
 
+@st.cache_data(ttl=_CACHE_TTL, hash_funcs=_CACHE_HASH)
 def get_comparative_performance(
     engine: Engine,
     tickers: List[str],
@@ -1162,17 +1190,16 @@ def get_comparative_performance(
 
     query = f"""
         WITH base_prices AS (
-            SELECT
+            SELECT DISTINCT ON (s.stock_id)
+                s.stock_id,
                 s.ticker,
-                FIRST_VALUE(f.close_price) OVER (
-                    PARTITION BY s.stock_id
-                    ORDER BY d.date
-                ) as base_price
+                f.close_price as base_price
             FROM analytics.fact_daily_market f
             JOIN analytics.dim_stock s ON f.stock_id = s.stock_id
             JOIN analytics.dim_date d ON f.date_id = d.date_id
             WHERE s.ticker IN ({ticker_list})
               AND d.date >= :start_date
+            ORDER BY s.stock_id, d.date
         )
         SELECT
             s.ticker,
@@ -1182,7 +1209,7 @@ def get_comparative_performance(
         FROM analytics.fact_daily_market f
         JOIN analytics.dim_stock s ON f.stock_id = s.stock_id
         JOIN analytics.dim_date d ON f.date_id = d.date_id
-        JOIN base_prices bp ON s.ticker = bp.ticker
+        JOIN base_prices bp ON s.stock_id = bp.stock_id
         WHERE s.ticker IN ({ticker_list})
           AND d.date BETWEEN :start_date AND :end_date
         ORDER BY s.ticker, d.date

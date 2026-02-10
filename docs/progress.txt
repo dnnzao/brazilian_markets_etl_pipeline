@@ -78,31 +78,74 @@
 - [x] scripts/backfill_data.py - Data backfill script
 - [x] scripts/validate_data.py - Data validation script
 
-## Next Steps
+## Completed (2026-02-10)
 
-1. Start PostgreSQL container:
-   docker-compose up -d postgres
+### Docker Build Optimization
+- [x] Created .dockerignore (context: ~811 MB → <1 MB)
+- [x] Removed unused COPY requirements.txt from Dockerfile.dashboard and Dockerfile.airflow
+- [x] Removed gcc from Dockerfile.dashboard (all packages use binary wheels)
+- [x] Deleted __pycache__/ from dashboard/
+- [x] Added comments to both Dockerfiles explaining design decisions
+- [x] Updated all documentation (README, architecture.md, setup_guide.md, progress.txt)
 
-2. Verify database connection:
-   psql -h localhost -U dataeng -d brazilian_market -c "\dt raw.*"
+### Streamlit Configuration
+- [x] Created dashboard/.streamlit/config.toml with maxMessageSize=500
 
-3. Run data backfill:
-   python scripts/backfill_data.py
+### Script Fixes
+- [x] Fixed start_project.sh and close_project.sh to write logs to logs/ dir
 
-4. Install dbt dependencies and run models:
-   cd dbt_project && dbt deps && dbt run
+### Airflow Configuration
+- [x] Added AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: America/Sao_Paulo to docker-compose.yml
 
-5. Start Airflow for orchestration:
-   docker-compose up -d airflow-webserver airflow-scheduler
+### Documentation Fixes
+- [x] Fixed setup_guide.md: wrong --profile dashboard command (dashboard has no profile)
+- [x] Updated README.md project structure: added .dockerignore, .streamlit/config.toml, 5_Historical_Analysis.py
+- [x] Added "Docker Build Optimization" section to architecture.md
+- [x] Updated can_be_removed.md to reflect all items implemented
 
-6. Start dashboard:
-   streamlit run dashboard/app.py
+### Bug Fix: Airflow DAG dbt tasks failing — "dbt: command not found"
+- [x] Root cause: daily_market_etl.py runs dbt via BashOperator inside the Airflow
+  container, but dbt was only installed in the separate dbt_runner container.
+- [x] Fix: Added dbt-core==1.7.4 and dbt-postgres==1.7.4 to Dockerfile.airflow
+- [x] Fix: Added DBT_PROFILES_DIR env var to airflow-scheduler in docker-compose.yml
+  so dbt finds profiles.yml in /opt/airflow/dbt_project
+- Requires: Airflow image rebuild
 
-## Blockers
-None currently
+### Bug Fix: Streamlit maxMessageSize still exceeded on Comparative Performance
+- [x] Increased limit from 500 MB to 2000 MB in dashboard/.streamlit/config.toml
+
+### Bug Fix: Airflow dbt tasks failing — PermissionError on dbt.log
+- [x] Root cause: dbt_project/logs/dbt.log is owned by root (created by the
+  dbt_runner container). The Airflow scheduler runs as UID 50000 (airflow user)
+  and cannot write to the volume-mounted file.
+- [x] Fix: Added --log-path /tmp/dbt_logs to all dbt BashOperator commands in
+  both daily_market_etl.py and backfill_historical.py. dbt now writes its logs
+  to /tmp inside the container where the airflow user has write access.
+
+### Bug Fix: Streamlit dashboard extremely slow (~45s per stream)
+- [x] Root cause A — Cartesian join in get_comparative_performance():
+  The base_prices CTE returned one row per trading day per ticker (all with
+  the same base_price via FIRST_VALUE). Joining back on ticker only produced
+  a massive cross-product (4 tickers × 1250 days × 1250 = 6.25M rows instead
+  of 5,000). Fixed by adding DISTINCT ON (s.stock_id) to the CTE and joining
+  on stock_id instead of ticker.
+- [x] Root cause B — No query caching:
+  The Historical Analysis page runs 11+ heavy SQL queries on every Streamlit
+  rerun (every widget interaction re-executes the full page). Added
+  @st.cache_data(ttl=300, hash_funcs={Engine: id}) to all query functions in
+  dashboard/components/queries.py. Results are now cached for 5 minutes,
+  eliminating redundant database hits during interactive use.
+
+## Pending Rebuild
+- Dashboard image needs rebuild (queries.py changed): sudo docker compose build dashboard
+- Airflow image needs rebuild (Dockerfile.airflow changed): sudo docker compose build airflow-init
+- Then restart all: sudo docker compose up -d
 
 ## Notes
 - All core components implemented
-- Ready for testing with real database
-- Documentation (README.md) still needs to be created
-- Architecture diagrams still needed
+- README.md exists with full documentation
+- Airflow UI timezone set to America/Sao_Paulo via docker-compose.yml env var
+- The dbt_run and dbt_test tasks showed "upstream_failed" because dbt_deps failed
+  first with "dbt: command not found" — fixed by installing dbt in Airflow image
+- dbt log permission issue fixed by redirecting logs to /tmp inside the container
+- Dashboard query caching benefits all pages, not just Historical Analysis

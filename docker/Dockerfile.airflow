@@ -8,7 +8,8 @@
 
 FROM apache/airflow:2.8.0-python3.11
 
-# Install extraction/loading packages (airflow is already in the base image)
+# Install extraction/loading packages and dbt (airflow is already in the base image)
+# dbt is needed because the DAG runs dbt commands via BashOperator
 RUN pip install --no-cache-dir \
     yfinance>=0.2.40 \
     requests>=2.31.0 \
@@ -17,4 +18,6 @@ RUN pip install --no-cache-dir \
     sqlalchemy>=2.0.25 \
     psycopg2-binary>=2.9.9 \
     python-dotenv>=1.0.0 \
-    loguru>=0.7.2
+    loguru>=0.7.2 \
+    dbt-core==1.7.4 \
+    dbt-postgres==1.7.4

@@ -181,24 +181,26 @@ with DAG(
         provide_context=True,
     )
 
+    # --log-path /tmp/dbt_logs avoids PermissionError on the volume-mounted
+    # dbt_project/logs/dbt.log (owned by root, but Airflow runs as UID 50000).
     dbt_deps = BashOperator(
         task_id="dbt_deps",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps --log-path /tmp/dbt_logs",
     )
 
     dbt_seed = BashOperator(
         task_id="dbt_seed",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt seed",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt seed --log-path /tmp/dbt_logs",
     )
 
     dbt_run = BashOperator(
         task_id="dbt_run_full_refresh",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --full-refresh",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --full-refresh --log-path /tmp/dbt_logs",
     )
 
     dbt_test = BashOperator(
         task_id="dbt_test",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test",
+        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --log-path /tmp/dbt_logs",
     )
 
     # Task dependencies

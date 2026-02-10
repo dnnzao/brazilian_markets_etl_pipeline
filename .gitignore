@@ -97,6 +97,7 @@ dbt_project/package-lock.yml
 logs/*.log
 *.log
 !logs/.gitkeep
+/logs
 
 # -----------------------------------------------------------------------------
 # OS Files
