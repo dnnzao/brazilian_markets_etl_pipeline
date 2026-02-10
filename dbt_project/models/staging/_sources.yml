@@ -1,0 +1,66 @@
+version: 2
+
+sources:
+  - name: raw
+    database: brazilian_market
+    schema: raw
+    description: "Raw data from source systems (Yahoo Finance and BCB API)"
+
+    tables:
+      - name: stocks
+        description: "Raw stock price data from Yahoo Finance"
+        columns:
+          - name: id
+            description: "Surrogate key"
+          - name: ticker
+            description: "Stock ticker symbol with .SA suffix"
+            tests:
+              - not_null
+          - name: date
+            description: "Trading date"
+            tests:
+              - not_null
+          - name: open_price
+            description: "Opening price in BRL"
+          - name: high_price
+            description: "Highest price during trading day"
+          - name: low_price
+            description: "Lowest price during trading day"
+          - name: close_price
+            description: "Closing price in BRL"
+            tests:
+              - not_null
+          - name: volume
+            description: "Number of shares traded"
+          - name: adj_close
+            description: "Adjusted closing price (accounts for splits/dividends)"
+          - name: loaded_at
+            description: "Timestamp when record was loaded"
+          - name: source
+            description: "Data source identifier"
+
+      - name: indicators
+        description: "Raw economic indicators from BCB API"
+        columns:
+          - name: id
+            description: "Surrogate key"
+          - name: indicator_code
+            description: "BCB series code"
+            tests:
+              - not_null
+          - name: indicator_name
+            description: "Indicator name"
+          - name: date
+            description: "Indicator date"
+            tests:
+              - not_null
+          - name: value
+            description: "Indicator value"
+          - name: unit
+            description: "Unit of measurement"
+          - name: frequency
+            description: "Data frequency (daily, monthly, quarterly)"
+          - name: loaded_at
+            description: "Timestamp when record was loaded"
+          - name: source
+            description: "Data source identifier"

@@ -1,0 +1,18 @@
+# Dockerfile.airflow
+# Custom Airflow image with project dependencies installed
+
+FROM apache/airflow:2.8.0-python3.11
+
+# Install project dependencies
+COPY requirements.txt /tmp/requirements.txt
+
+# Install packages (excluding airflow itself since it's already installed)
+RUN pip install --no-cache-dir \
+    yfinance>=0.2.40 \
+    requests>=2.31.0 \
+    pandas>=2.2.0 \
+    numpy>=1.26.0 \
+    sqlalchemy>=2.0.25 \
+    psycopg2-binary>=2.9.9 \
+    python-dotenv>=1.0.0 \
+    loguru>=0.7.2

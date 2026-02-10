@@ -1,0 +1,21 @@
+ticker,company_name,sector,subsector,market_cap_category,listing_segment
+PETR4.SA,Petrobras,Oil & Gas,Exploration & Production,Large Cap,Novo Mercado
+VALE3.SA,Vale,Mining,Iron Ore,Large Cap,Novo Mercado
+ITUB4.SA,Itaú Unibanco,Banking,Commercial Banks,Large Cap,Level 1
+BBDC4.SA,Bradesco,Banking,Commercial Banks,Large Cap,Level 1
+ABEV3.SA,Ambev,Food & Beverage,Beverages,Large Cap,Novo Mercado
+B3SA3.SA,B3,Financial Services,Exchange,Large Cap,Novo Mercado
+RENT3.SA,Localiza,Transportation,Car Rental,Large Cap,Novo Mercado
+WEGE3.SA,WEG,Industrials,Electrical Equipment,Large Cap,Novo Mercado
+SUZB3.SA,Suzano,Materials,Paper & Pulp,Large Cap,Novo Mercado
+RAIL3.SA,Rumo,Transportation,Logistics,Mid Cap,Novo Mercado
+BBAS3.SA,Banco do Brasil,Banking,Commercial Banks,Large Cap,Novo Mercado
+GGBR4.SA,Gerdau,Materials,Steel,Large Cap,Level 1
+JBSS3.SA,JBS,Food & Beverage,Meat Processing,Large Cap,Novo Mercado
+MGLU3.SA,Magazine Luiza,Retail,E-commerce,Mid Cap,Novo Mercado
+LREN3.SA,Lojas Renner,Retail,Fashion Retail,Large Cap,Novo Mercado
+CSAN3.SA,Cosan,Oil & Gas,Distribution,Large Cap,Novo Mercado
+RADL3.SA,Raia Drogasil,Retail,Pharmacy,Large Cap,Novo Mercado
+EMBR3.SA,Embraer,Industrials,Aerospace,Large Cap,Novo Mercado
+HAPV3.SA,Hapvida,Healthcare,Health Insurance,Large Cap,Novo Mercado
+TOTS3.SA,Totvs,Technology,Software,Mid Cap,Novo Mercado

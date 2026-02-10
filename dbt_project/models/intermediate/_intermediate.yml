@@ -1,0 +1,94 @@
+version: 2
+
+models:
+  - name: int_stock_returns
+    description: "Stock returns calculated at different time horizons (daily, weekly, monthly, yearly)"
+    columns:
+      - name: ticker
+        description: "Stock ticker symbol"
+        tests:
+          - not_null
+
+      - name: date
+        description: "Trading date"
+        tests:
+          - not_null
+
+      - name: close_price
+        description: "Closing price"
+
+      - name: daily_return
+        description: "Daily return ((today - yesterday) / yesterday)"
+
+      - name: weekly_return
+        description: "5-day return"
+
+      - name: monthly_return
+        description: "21-day return"
+
+      - name: yearly_return
+        description: "252-day return"
+
+      - name: ytd_return
+        description: "Year-to-date return"
+
+  - name: int_stock_volatility
+    description: "Stock volatility measures at different time windows"
+    columns:
+      - name: ticker
+        description: "Stock ticker symbol"
+        tests:
+          - not_null
+
+      - name: date
+        description: "Trading date"
+        tests:
+          - not_null
+
+      - name: volatility_7d
+        description: "7-day rolling standard deviation of returns"
+
+      - name: volatility_30d
+        description: "30-day rolling standard deviation of returns"
+
+      - name: volatility_90d
+        description: "90-day rolling standard deviation of returns"
+
+      - name: annualized_volatility
+        description: "Annualized volatility (daily vol * sqrt(252))"
+
+      - name: volatility_percentile
+        description: "Percentile rank of volatility among all stocks on the date"
+
+  - name: int_market_indicators
+    description: "Pivoted economic indicators for joining with stock data"
+    columns:
+      - name: date
+        description: "Reference date"
+        tests:
+          - not_null
+          - unique
+
+      - name: selic_rate
+        description: "SELIC base interest rate (% per year)"
+
+      - name: ipca
+        description: "IPCA inflation rate (% monthly)"
+
+      - name: usd_brl
+        description: "USD/BRL exchange rate"
+
+      - name: cdi
+        description: "CDI rate (% per year)"
+
+      - name: unemployment
+        description: "Unemployment rate (%)"
+
+      - name: igp_m
+        description: "IGP-M inflation index (% monthly)"
+
+      - name: real_interest_rate
+        description: "SELIC minus IPCA"
+
+      - name: selic_category
+        description: "Categorical SELIC level (Very Low to Very High)"

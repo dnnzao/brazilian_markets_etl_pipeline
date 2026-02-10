@@ -1,0 +1,103 @@
+# Brazilian Market ETL Pipeline - Progress Tracker
+
+## Project Status: Phase 1 Complete
+
+## Completed (2025-02-08)
+
+### Phase 1: Foundation
+- [x] Project directory structure created
+- [x] Git repository initialized with proper .gitignore
+- [x] docker-compose.yml created with PostgreSQL, Airflow, and Dashboard services
+- [x] Database initialization scripts created (01_create_schemas.sql, 02_create_raw_tables.sql, 03_create_analytics_tables.sql)
+- [x] .env.example created with all required variables
+- [x] requirements.txt with all Python dependencies
+- [x] LICENSE file (MIT)
+
+### Phase 2: Data Extraction
+- [x] extract/config.py - Extraction configuration class
+- [x] extract/utils.py - Rate limiting, retry logic, validation utilities
+- [x] extract/stock_extractor.py - StockExtractor class for Yahoo Finance
+- [x] extract/bcb_extractor.py - BCBExtractor class for BCB API
+- [x] load/db_loader.py - Database connection and loading utilities
+
+### Phase 3: Data Transformation (dbt)
+- [x] dbt_project.yml - Project configuration
+- [x] profiles.yml - Database connection profiles
+- [x] packages.yml - dbt dependencies
+- [x] models/staging/_sources.yml - Source definitions
+- [x] models/staging/_staging.yml - Model documentation
+- [x] models/staging/stg_stocks.sql - Staging model for stocks
+- [x] models/staging/stg_indicators.sql - Staging model for indicators
+- [x] models/intermediate/_intermediate.yml - Model documentation
+- [x] models/intermediate/int_stock_returns.sql - Return calculations
+- [x] models/intermediate/int_stock_volatility.sql - Volatility calculations
+- [x] models/intermediate/int_market_indicators.sql - Indicator pivot
+- [x] models/marts/_marts.yml - Model documentation
+- [x] models/marts/dim_date.sql - Date dimension
+- [x] models/marts/dim_stock.sql - Stock dimension
+- [x] models/marts/dim_indicator.sql - Indicator dimension
+- [x] models/marts/fact_daily_market.sql - Fact table
+- [x] macros/calculate_return.sql - Reusable return calculation
+- [x] macros/generate_schema_name.sql - Schema name override
+- [x] macros/test_positive_value.sql - Custom positive value test
+- [x] tests/assert_no_future_dates.sql - Data quality test
+- [x] tests/assert_positive_prices.sql - Data quality test
+- [x] tests/assert_valid_returns.sql - Data quality test
+- [x] seeds/stock_metadata.csv - Stock reference data
+
+### Phase 4: Orchestration (Airflow)
+- [x] airflow/dags/daily_market_etl.py - Daily incremental DAG
+- [x] airflow/dags/backfill_historical.py - Historical backfill DAG
+
+### Phase 5: Visualization (Streamlit Dashboard)
+- [x] dashboard/app.py - Main dashboard entry point
+- [x] dashboard/config.py - Dashboard configuration
+- [x] dashboard/components/__init__.py - Components package
+- [x] dashboard/components/charts.py - Reusable chart components
+- [x] dashboard/components/queries.py - SQL queries for dashboard
+- [x] dashboard/pages/1_Market_Overview.py - Market overview page
+- [x] dashboard/pages/2_Sector_Analysis.py - Sector analysis page
+- [x] dashboard/pages/3_Macro_Correlation.py - Macro correlation page
+- [x] dashboard/pages/4_Stock_Screener.py - Stock screener page
+
+### Phase 6: Testing
+- [x] tests/__init__.py - Test package
+- [x] tests/conftest.py - Pytest fixtures
+- [x] tests/test_stock_extractor.py - StockExtractor tests
+- [x] tests/test_bcb_extractor.py - BCBExtractor tests
+- [x] tests/test_db_loader.py - DatabaseLoader tests
+
+### Utilities
+- [x] Dockerfile.dashboard - Dashboard container
+- [x] scripts/setup_db.sh - Database setup script
+- [x] scripts/backfill_data.py - Data backfill script
+- [x] scripts/validate_data.py - Data validation script
+
+## Next Steps
+
+1. Start PostgreSQL container:
+   docker-compose up -d postgres
+
+2. Verify database connection:
+   psql -h localhost -U dataeng -d brazilian_market -c "\dt raw.*"
+
+3. Run data backfill:
+   python scripts/backfill_data.py
+
+4. Install dbt dependencies and run models:
+   cd dbt_project && dbt deps && dbt run
+
+5. Start Airflow for orchestration:
+   docker-compose up -d airflow-webserver airflow-scheduler
+
+6. Start dashboard:
+   streamlit run dashboard/app.py
+
+## Blockers
+None currently
+
+## Notes
+- All core components implemented
+- Ready for testing with real database
+- Documentation (README.md) still needs to be created
+- Architecture diagrams still needed

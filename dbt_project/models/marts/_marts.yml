@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Date dimension with calendar attributes for filtering and grouping"
+    columns:
+      - name: date_id
+        description: "Surrogate key (YYYYMMDD format as integer)"
+        tests:
+          - unique
+          - not_null
+
+      - name: date
+        description: "Actual date value"
+        tests:
+          - unique
+          - not_null
+
+      - name: year
+        description: "Year number"
+
+      - name: quarter
+        description: "Quarter number (1-4)"
+
+      - name: month
+        description: "Month number (1-12)"
+
+      - name: month_name
+        description: "Full month name"
+
+      - name: day_of_week
+        description: "Day of week (0=Sunday, 6=Saturday)"
+
+      - name: day_name
+        description: "Full day name"
+
+      - name: is_weekend
+        description: "True if Saturday or Sunday"
+
+      - name: is_trading_day
+        description: "True if not weekend and not holiday"
+
+  - name: dim_stock
+    description: "Stock dimension with company metadata"
+    columns:
+      - name: stock_id
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null
+
+      - name: ticker
+        description: "Stock ticker symbol"
+        tests:
+          - unique
+          - not_null
+
+      - name: company_name
+        description: "Company name"
+
+      - name: sector
+        description: "Business sector"
+
+      - name: subsector
+        description: "Business subsector"
+
+      - name: market_cap_category
+        description: "Market capitalization category"
+
+      - name: listing_segment
+        description: "B3 listing segment"
+
+  - name: dim_indicator
+    description: "Economic indicator dimension with metadata"
+    columns:
+      - name: indicator_id
+        description: "Surrogate key"
+        tests:
+          - unique
+          - not_null
+
+      - name: indicator_code
+        description: "BCB series code"
+        tests:
+          - unique
+          - not_null
+
+      - name: indicator_name
+        description: "Indicator name"
+
+      - name: description
+        description: "Human-readable description"
+
+      - name: unit
+        description: "Unit of measurement"
+
+      - name: frequency
+        description: "Data frequency"
+
+  - name: fact_daily_market
+    description: "Daily market fact table with stock prices, returns, volatility, and macro context"
+    columns:
+      - name: date_id
+        description: "Foreign key to dim_date"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_id
+
+      - name: stock_id
+        description: "Foreign key to dim_stock"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_stock')
+              field: stock_id
+
+      - name: close_price
+        description: "Closing price"
+        tests:
+          - not_null
+
+      - name: daily_return
+        description: "Daily return"
+
+      - name: volatility_30d
+        description: "30-day rolling volatility"
+
+      - name: selic_rate
+        description: "SELIC rate (denormalized for performance)"
+
+      - name: usd_brl
+        description: "USD/BRL exchange rate (denormalized)"

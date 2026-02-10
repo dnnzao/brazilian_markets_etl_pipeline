@@ -1,0 +1,41 @@
+name: 'brazilian_market'
+version: '1.0.0'
+config-version: 2
+
+profile: 'brazilian_market'
+
+model-paths: ["models"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  brazilian_market:
+    staging:
+      +materialized: view
+      +schema: staging
+      +tags: ['staging']
+
+    intermediate:
+      +materialized: view
+      +schema: staging
+      +tags: ['intermediate']
+
+    marts:
+      +materialized: table
+      +schema: analytics
+      +tags: ['marts']
+
+seeds:
+  brazilian_market:
+    +schema: analytics
+    +quote_columns: false
+
+vars:
+  start_date: '2015-01-01'
