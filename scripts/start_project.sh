@@ -3,8 +3,13 @@
 set -e
 
 # Generate log filename with timestamp
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+LOG_DIR="${PROJECT_DIR}/logs"
+mkdir -p "$LOG_DIR"
+
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-LOG_FILE="log_start_project_${TIMESTAMP}.log"
+LOG_FILE="${LOG_DIR}/log_start_project_${TIMESTAMP}.log"
 
 # Redirect all output to log file while also displaying
 exec > >(tee -a "$LOG_FILE") 2>&1
