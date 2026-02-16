@@ -172,3 +172,4 @@ can_be_removed.md
 *.zip
 *.tar.gz
 *.rar
+internal_files/

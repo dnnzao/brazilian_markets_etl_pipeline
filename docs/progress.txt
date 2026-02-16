@@ -116,8 +116,8 @@
 
 ### Bug Fix: Airflow dbt tasks failing — PermissionError on dbt.log
 - [x] Root cause: dbt_project/logs/dbt.log is owned by root (created by the
-  dbt_runner container). The Airflow scheduler runs as UID 50000 (airflow user)
-  and cannot write to the volume-mounted file.
+  dbt_runner container). Previously the Airflow scheduler ran as UID 50000;
+  now all containers run as the host user's UID via docker-compose user: directive.
 - [x] Fix: Added --log-path /tmp/dbt_logs to all dbt BashOperator commands in
   both daily_market_etl.py and backfill_historical.py. dbt now writes its logs
   to /tmp inside the container where the airflow user has write access.
@@ -137,9 +137,9 @@
   eliminating redundant database hits during interactive use.
 
 ## Pending Rebuild
-- Dashboard image needs rebuild (queries.py changed): sudo docker compose build dashboard
-- Airflow image needs rebuild (Dockerfile.airflow changed): sudo docker compose build airflow-init
-- Then restart all: sudo docker compose up -d
+- Dashboard image needs rebuild (queries.py changed): docker compose build dashboard
+- Airflow image needs rebuild (Dockerfile.airflow changed): docker compose build airflow-init
+- Then restart all: docker compose up -d
 
 ## Notes
 - All core components implemented

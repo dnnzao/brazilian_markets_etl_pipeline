@@ -21,24 +21,29 @@ echo "  Log file: $LOG_FILE"
 echo "  Started at: $(date)"
 echo ""
 
-# Check if running as root or with sudo
-if [ "$EUID" -ne 0 ]; then
-    echo "ERROR: Please run with sudo: sudo ./start_project.sh"
-    exit 1
-fi
+# Ensure required directories exist
+echo "[1/5] Creating required directories..."
+mkdir -p "$PROJECT_DIR/logs"
+mkdir -p "$PROJECT_DIR/airflow/logs"
+mkdir -p "$PROJECT_DIR/airflow/plugins"
+for dir in dbt_packages target logs; do
+    mkdir -p "$PROJECT_DIR/dbt_project/$dir"
+done
+echo "        ✓ Directory structure ready"
 
 # Build images if needed
-echo "[1/4] Building Docker images..."
+echo ""
+echo "[2/5] Building Docker images..."
 docker compose build 2>&1
 
 # Start all services
 echo ""
-echo "[2/4] Starting all services..."
+echo "[3/5] Starting all services..."
 docker compose up -d 2>&1
 
 # Wait for services to be healthy
 echo ""
-echo "[3/4] Waiting for services to be healthy..."
+echo "[4/5] Waiting for services to be healthy..."
 
 echo "      - PostgreSQL..."
 RETRIES=0
@@ -82,7 +87,7 @@ echo "        ✓ Dashboard is ready"
 
 # Show status
 echo ""
-echo "[4/4] All services started successfully!"
+echo "[5/5] All services started successfully!"
 echo ""
 docker compose ps 2>&1
 echo ""
@@ -94,8 +99,8 @@ echo "  - Database:  localhost:5432"
 echo "=========================================="
 echo ""
 echo "To run dbt commands:"
-echo "  sudo docker exec dbt_runner dbt run"
-echo "  sudo docker exec dbt_runner dbt test"
+echo "  docker exec dbt_runner dbt run"
+echo "  docker exec dbt_runner dbt test"
 echo ""
 echo "Completed at: $(date)"
 echo "Log saved to: $LOG_FILE"

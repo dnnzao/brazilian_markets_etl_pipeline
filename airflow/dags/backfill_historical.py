@@ -23,7 +23,9 @@ Created: 2025-02-07
 
 import os
 import sys
+import traceback
 from datetime import datetime, timedelta
+from pathlib import Path
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -43,6 +45,72 @@ DB_CONN = (
 
 DBT_PROJECT_DIR = "/opt/airflow/dbt_project"
 START_DATE = "2015-01-01"
+TASK_LOG_DIR = Path("/opt/airflow/logs/extraction")
+
+
+# =========================================================================
+# Task logging callbacks — write execution logs to the project logs/ dir
+# =========================================================================
+
+def _save_task_log(context, status):
+    """Write a task execution log file to the project logs/ directory."""
+    try:
+        ti = context["task_instance"]
+        dag_id = ti.dag_id
+        task_id = ti.task_id.replace(".", "_")
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        TASK_LOG_DIR.mkdir(parents=True, exist_ok=True)
+        log_path = TASK_LOG_DIR / f"dag_{dag_id}_task_{task_id}_{ts}_{status}.log"
+
+        duration = 0.0
+        if ti.end_date and ti.start_date:
+            duration = (ti.end_date - ti.start_date).total_seconds()
+
+        lines = [
+            "=" * 70,
+            "Airflow Task Execution Log",
+            "=" * 70,
+            f"DAG:            {dag_id}",
+            f"Task:           {ti.task_id}",
+            f"Execution Date: {context.get('execution_date', 'N/A')}",
+            f"Status:         {status.upper()}",
+            f"Start:          {ti.start_date}",
+            f"End:            {ti.end_date}",
+            f"Duration:       {duration:.1f}s",
+            f"Try Number:     {ti.try_number}",
+            "=" * 70,
+        ]
+
+        if status == "success":
+            xcom_value = ti.xcom_pull(task_ids=ti.task_id)
+            if xcom_value is not None:
+                lines.append(f"Return Value:   {xcom_value}")
+
+        if status == "failed":
+            exception = context.get("exception")
+            if exception:
+                lines.append(f"Error: {exception}")
+                lines.append(f"Traceback:\n{''.join(traceback.format_exception(type(exception), exception, exception.__traceback__))}")
+
+        lines.append("")
+
+        with open(log_path, "w") as f:
+            f.write("\n".join(lines))
+    except Exception as log_err:
+        ti = context.get("task_instance")
+        logger = ti.log if ti else None
+        if logger:
+            logger.warning(f"Could not write task log to {TASK_LOG_DIR}: {log_err}")
+
+
+def _on_success(context):
+    _save_task_log(context, "success")
+
+
+def _on_failure(context):
+    _save_task_log(context, "failed")
+
 
 # Default arguments
 default_args = {
@@ -53,6 +121,8 @@ default_args = {
     "retries": 1,
     "retry_delay": timedelta(minutes=10),
     "execution_timeout": timedelta(hours=2),
+    "on_success_callback": _on_success,
+    "on_failure_callback": _on_failure,
 }
 
 
@@ -182,25 +252,28 @@ with DAG(
     )
 
     # --log-path /tmp/dbt_logs avoids PermissionError on the volume-mounted
-    # dbt_project/logs/dbt.log (owned by root, but Airflow runs as UID 50000).
+    # dbt_project/logs/dbt.log (may be owned by a different UID from dbt_runner).
+    # pipefail + tee: captures full dbt output to the project logs/ dir
+    # while preserving the exit code for Airflow to detect failures.
+    _dbt_log_dir = str(TASK_LOG_DIR)
     dbt_deps = BashOperator(
         task_id="dbt_deps",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt deps --log-path /tmp/dbt_logs",
+        bash_command=f'set -o pipefail && cd {DBT_PROJECT_DIR} && dbt deps --log-path /tmp/dbt_logs 2>&1 | tee {_dbt_log_dir}/dbt_deps_$(date +%Y%m%d_%H%M%S).log',
     )
 
     dbt_seed = BashOperator(
         task_id="dbt_seed",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt seed --log-path /tmp/dbt_logs",
+        bash_command=f'set -o pipefail && cd {DBT_PROJECT_DIR} && dbt seed --log-path /tmp/dbt_logs 2>&1 | tee {_dbt_log_dir}/dbt_seed_$(date +%Y%m%d_%H%M%S).log',
     )
 
     dbt_run = BashOperator(
         task_id="dbt_run_full_refresh",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt run --full-refresh --log-path /tmp/dbt_logs",
+        bash_command=f'set -o pipefail && cd {DBT_PROJECT_DIR} && dbt run --full-refresh --log-path /tmp/dbt_logs 2>&1 | tee {_dbt_log_dir}/dbt_run_full_refresh_$(date +%Y%m%d_%H%M%S).log',
     )
 
     dbt_test = BashOperator(
         task_id="dbt_test",
-        bash_command=f"cd {DBT_PROJECT_DIR} && dbt test --log-path /tmp/dbt_logs",
+        bash_command=f'set -o pipefail && cd {DBT_PROJECT_DIR} && dbt test --log-path /tmp/dbt_logs 2>&1 | tee {_dbt_log_dir}/dbt_test_$(date +%Y%m%d_%H%M%S).log',
     )
 
     # Task dependencies

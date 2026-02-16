@@ -19,11 +19,6 @@ echo "  Log file: $LOG_FILE"
 echo "  Started at: $(date)"
 echo ""
 
-# Check if running as root or with sudo
-if [ "$EUID" -ne 0 ]; then
-    echo "ERROR: Please run with sudo: sudo ./close_project.sh"
-    exit 1
-fi
 
 # Show current status
 echo "[1/4] Current running containers:"
@@ -60,7 +55,7 @@ echo "  All services stopped successfully!"
 echo "=========================================="
 echo ""
 echo "Note: Database data is preserved in Docker volume 'postgres_data'"
-echo "To remove all data: sudo docker volume rm brazilian_markets_etl_pipeline_postgres_data"
+echo "To remove all data: docker volume rm brazilian_markets_etl_pipeline_postgres_data"
 echo ""
 echo "Completed at: $(date)"
 echo "Log saved to: $LOG_FILE"

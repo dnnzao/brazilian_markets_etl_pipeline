@@ -1,13 +1,13 @@
 #!/bin/bash
 # Diagnostic script to analyze multi-year returns data
-# Run with: sudo ./scripts/diagnose_multi_year_returns.sh > logs/diagnose_output.log 2>&1
+# Run with: ./scripts/diagnose_multi_year_returns.sh > logs/diagnose_output.log 2>&1
 
 echo "=== MULTI-YEAR RETURNS DIAGNOSTIC ==="
 echo "Date: $(date)"
 echo ""
 
 echo "=== 1. Check date range in fact table ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 SELECT
     MIN(d.date) as min_date,
     MAX(d.date) as max_date,
@@ -20,7 +20,7 @@ JOIN analytics.dim_stock s ON f.stock_id = s.stock_id;
 
 echo ""
 echo "=== 2. Check data availability by year ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 SELECT
     d.year,
     COUNT(*) as rows,
@@ -34,7 +34,7 @@ ORDER BY d.year;
 
 echo ""
 echo "=== 3. Check first and last date per stock ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 SELECT
     s.ticker,
     MIN(d.date) as first_date,
@@ -49,7 +49,7 @@ ORDER BY s.ticker;
 
 echo ""
 echo "=== 4. Test multi-year returns query (simplified) ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 WITH date_bounds AS (
     SELECT
         MAX(d.date) as max_date,
@@ -65,7 +65,7 @@ SELECT * FROM date_bounds;
 
 echo ""
 echo "=== 5. Check if prices exist for historical dates (PETR4.SA) ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 WITH date_bounds AS (
     SELECT
         MAX(d.date) as max_date,
@@ -99,7 +99,7 @@ LIMIT 1;
 
 echo ""
 echo "=== 6. Sample of raw.stocks data ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 SELECT ticker, MIN(date), MAX(date), COUNT(*) as rows
 FROM raw.stocks
 GROUP BY ticker
@@ -109,7 +109,7 @@ LIMIT 20;
 
 echo ""
 echo "=== 7. Check if DISTINCT ON works (test query) ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 WITH date_bounds AS (
     SELECT MAX(d.date) - INTERVAL '1 year' as date_1y
     FROM analytics.fact_daily_market f
@@ -128,7 +128,7 @@ LIMIT 5;
 
 echo ""
 echo "=== 8. Full multi-year returns query result ==="
-sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
+docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "
 WITH date_bounds AS (
     SELECT
         MAX(d.date) as max_date,

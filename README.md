@@ -107,7 +107,7 @@ cd brazilian-market-etl
 cp .env.example .env
 
 # Start all services (PostgreSQL, Airflow, Dashboard, dbt)
-sudo ./scripts/start_project.sh
+./scripts/start_project.sh
 ```
 
 After startup completes, access:
@@ -118,7 +118,7 @@ After startup completes, access:
 To stop all services:
 
 ```bash
-sudo ./scripts/close_project.sh
+./scripts/close_project.sh
 ```
 
 ## Project Structure
@@ -202,13 +202,13 @@ After the database contains raw data, run dbt to build the dimensional model:
 
 ```bash
 # Run dbt models
-sudo docker exec dbt_runner dbt run
+docker exec dbt_runner dbt run
 
 # Run dbt tests (39 data quality tests)
-sudo docker exec dbt_runner dbt test
+docker exec dbt_runner dbt test
 
 # Generate documentation
-sudo docker exec dbt_runner dbt docs generate
+docker exec dbt_runner dbt docs generate
 ```
 
 ## Running Tests
@@ -282,11 +282,11 @@ Detailed documentation is available in the `docs/` directory:
 ## Troubleshooting
 
 **Database connection fails:**
-Check if PostgreSQL container is running: `sudo docker compose ps`
+Check if PostgreSQL container is running: `docker compose ps`
 
 **dbt models fail:**
 Ensure raw tables have data before running dbt. Check with:
-`sudo docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "SELECT COUNT(*) FROM raw.stocks;"`
+`docker exec brazilian_market_db psql -U dataeng -d brazilian_market -c "SELECT COUNT(*) FROM raw.stocks;"`
 
 **Dashboard shows no data:**
 Run the dbt models first to populate the analytics schema.

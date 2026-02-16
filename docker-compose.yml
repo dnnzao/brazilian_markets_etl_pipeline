@@ -24,6 +24,7 @@ services:
       dockerfile: docker/Dockerfile.airflow
     image: brazilian-market-airflow:2.8.0
     container_name: airflow_init
+    user: "${AIRFLOW_UID:-1000}:0"
     depends_on:
       postgres:
         condition: service_healthy
@@ -55,6 +56,7 @@ services:
   airflow-webserver:
     image: brazilian-market-airflow:2.8.0
     container_name: airflow_webserver
+    user: "${AIRFLOW_UID:-1000}:0"
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -91,6 +93,7 @@ services:
   airflow-scheduler:
     image: brazilian-market-airflow:2.8.0
     container_name: airflow_scheduler
+    user: "${AIRFLOW_UID:-1000}:0"
     depends_on:
       airflow-init:
         condition: service_completed_successfully
@@ -122,6 +125,7 @@ services:
   dbt:
     image: ghcr.io/dbt-labs/dbt-postgres:1.7.4
     container_name: dbt_runner
+    user: "${AIRFLOW_UID:-1000}:0"
     depends_on:
       postgres:
         condition: service_healthy
@@ -136,8 +140,8 @@ services:
       - ./dbt_project:/usr/app/dbt_project
     working_dir: /usr/app/dbt_project
     entrypoint: ["/bin/bash", "-c", "tail -f /dev/null"]
-    # Use: sudo docker exec dbt_runner dbt run
-    # Or:  sudo docker exec dbt_runner dbt test
+    # Use: docker exec dbt_runner dbt run
+    # Or:  docker exec dbt_runner dbt test
 
   dashboard:
     build:

@@ -576,7 +576,7 @@ A helper script (`scripts/run_dbt.sh`) simplifies running dbt commands inside th
 ### 7.2 Start the dbt Container and Install Dependencies
 
 ```bash
-sudo docker compose --profile dbt up -d dbt && ./scripts/run_dbt.sh deps
+docker compose --profile dbt up -d dbt && ./scripts/run_dbt.sh deps
 ```
 
 This command does two things. First, `docker compose --profile dbt up -d dbt` starts the dbt container (which is defined with a profile, meaning it doesn't start by default). Second, `./scripts/run_dbt.sh deps` runs `dbt deps` inside that container.
@@ -848,7 +848,7 @@ React would require learning JavaScript/TypeScript and maintaining a separate fr
 ### 9.2 Option B: Run in Docker
 
 ```bash
-sudo docker compose up -d dashboard
+docker compose up -d dashboard
 ```
 
 The dashboard service is defined in `docker-compose.yml` without a profile, so it starts together with the other core services during `docker compose up -d`. You can also start it individually with the command above. The image is built from `docker/Dockerfile.dashboard`, which installs only the runtime dependencies the dashboard needs (streamlit, plotly, pandas, sqlalchemy, etc.). A `.dockerignore` file at the project root excludes the virtual environment, logs, tests, and other development artifacts from the build context, keeping builds fast and images small.
@@ -1235,19 +1235,19 @@ No data returned for TICKER.SA
 
 | Action | Command |
 |--------|---------|
-| Start database | `sudo docker compose up -d postgres` |
-| Start all services | `sudo docker compose up -d` |
-| Check status | `sudo docker compose ps` |
-| View logs | `sudo docker compose logs -f` |
+| Start database | `docker compose up -d postgres` |
+| Start all services | `docker compose up -d` |
+| Check status | `docker compose ps` |
+| View logs | `docker compose logs -f` |
 | Run backfill | `python scripts/backfill_data.py` |
-| Start dbt container | `sudo docker compose --profile dbt up -d dbt` |
+| Start dbt container | `docker compose --profile dbt up -d dbt` |
 | Run dbt (all steps) | `./scripts/run_dbt.sh all` |
 | Run dbt models only | `./scripts/run_dbt.sh run` |
 | Run dbt tests only | `./scripts/run_dbt.sh test` |
 | Run Python tests | `pytest tests/ -v` |
 | Start dashboard | `streamlit run dashboard/app.py` |
-| Stop services | `sudo docker compose down` |
-| Reset everything | `sudo docker compose down -v` |
+| Stop services | `docker compose down` |
+| Reset everything | `docker compose down -v` |
 
 ---
 

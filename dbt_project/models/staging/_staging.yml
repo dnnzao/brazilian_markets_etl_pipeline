@@ -51,7 +51,7 @@ models:
         tests:
           - not_null
           - accepted_values:
-              values: ['432', '433', '1', '4389', '24363', '189', '4380']
+              values: ['432', '433', '1', '12', '4389', '24363', '24369', '189', '4380', '7832']
 
       - name: indicator_name
         description: "Human-readable indicator name"
